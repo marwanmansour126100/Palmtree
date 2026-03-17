@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">  <!-- دعم RTL للعربية -->
+<head>
+    <meta charset="UTF-8">  <!-- لدعم الحروف العربية -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- للتوافق مع الهواتف -->
+    <title>قائمة المنتجات - تحميل كـ PDF</title>
+    <!-- CSS للتصميم المتقدم -->
+    <style>
+        body {
+            font-family: 'Amiri', sans-serif;  /* استخدام خط Amiri */
+            direction: rtl;
+            background-color: #f9f9f9;
+            padding: 24px;
+            margin: 0;
+        }
+        #container {
+            max-width: 600px;  /* عرض محدود للتناسق */
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .category {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            margin: 10px auto;
+            width: 300px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 20px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .category:hover {
+            background-color: #0056b3;  /* تأثير عند التحويم */
+        }
+        .subcategory {
+            display: none;  /* مخفي افتراضياً */
+            flex-direction: column;
+            gap: 10px;
+            margin: 10px auto;
+            max-width: 400px;
+        }
+        .subcategory.active {
+            display: flex;  /* يظهر عند التفعيل */
+        }
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button {
+            padding: 6px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .qty {
+            font-weight: bold;
+            font-size: 16px;
+            width: 30px;
+            text-align: center;
+        }
+        .actions {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .actions button {
+            margin: 8px;
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #007bff;
+        }
+        .actions button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <!-- تضمين المكتبات من CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>  <!-- لالتقاط الصفحة كصورة -->
+    <script src="Amiri.js.js"></script>  <!-- ملف الخط العربي (Amiri) -->
+    <script>
+        // Register Amiri font for jsPDF if available
+        if (window.jspdf && window.jspdf.jsPDF && window.AmiriFont) {
+            window.jspdf.jsPDF.API.events.push([
+                'addFonts',
+                function () {
+                    this.addFileToVFS('Amiri.ttf', window.AmiriFont);
+                    this.addFont('Amiri.ttf', 'Amiri', 'normal');
+                }
+            ]);
+        }
+    </script>
+</head>
+<body>
+    <div id="container">  <!-- حاوية لالتقاط المحتوى -->
+        <h2>قائمة المنتجات</h2>
+
+        <!-- الأقسام الرئيسية -->
+        <div class="category" onclick="toggleCategory('drinks')">🥤 المشروبات</div>
+        <div id="drinks" class="subcategory">
+            <div class="product" data-name="عصير برتقال">
+                <div class="product-name">عصير برتقال</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="product" data-name="ماء معدني">
+                <div class="product-name">ماء معدني</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="category" onclick="toggleCategory('foods')">🍽 المأكولات</div>
+        <div id="foods" class="subcategory">
+            <div class="product" data-name="ساندويتش دجاج">
+                <div class="product-name">ساندويتش دجاج</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="product" data-name="بيتزا صغيرة">
+                <div class="product-name">بيتزا صغيرة</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="category" onclick="toggleCategory('desserts')">🍰 الحلويات</div>
+        <div id="desserts" class="subcategory">
+            <div class="product" data-name="كعكة شوكولاتة">
+                <div class="product-name">كعكة شوكولاتة</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="product" data-name="بسكويت">
+                <div class="product-name">بسكويت</div>
+                <div class="controls">
+                    <button type="button" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty">0</span>
+                    <button type="button" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الأزرار -->
+        <div class="actions">
+            <button type="button" onclick="resetAll()">تهيئة</button>
+            <button type="button" onclick="generatePDF()">تصدير إلى PDF</button>
+            <button type="button" onclick="printPage()">طباعة</button>
+            <button type="button" onclick="sendToWhatsApp()">إرسال إلى واتساب</button>
+        </div>
+    </div>
+
+    <script>
+        // تبديل عرض الفئات
+        function toggleCategory(id) {
+            const section = document.getElementById(id);
+            // التحقق من حالة العرض باستخدام getComputedStyle
+            const isHidden = window.getComputedStyle(section).display === 'none';
+            section.classList.toggle('active', isHidden);  // تبديل الفئة active
+        }
+
+        // تغيير الكمية
+        function changeQty(btn, delta) {
+            const qtySpan = btn.parentElement.querySelector('.qty');
+            let qty = parseInt(qtySpan.textContent);
+            qty = Math.max(0, qty + delta);
+            qtySpan.textContent = qty;
+        }
+
+        // إعادة ضبط الكميات
+        function resetAll() {
+            document.querySelectorAll('.qty').forEach(span => span.textContent = '0');
+        }
+
+        // إنشاء PDF
+        async function generatePDF() {
+            // التحقق من وجود طلبات
+            let hasItems = false;
+            document.querySelectorAll('.qty').forEach(span => {
+                if (parseInt(span.textContent) > 0) hasItems = true;
+            });
+            if (!hasItems) {
+                alert('يرجى اختيار منتج واحد على الأقل قبل تصدير الـ PDF!');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',  // وضع الصفحة (عمودي)
+                unit: 'mm',  // وحدة القياس
+                format: 'a4'  // حجم الصفحة A4
+            });
+
+            // --- إضافة الشعار ---
+            const logoImg = new Image();
+            logoImg.src = 'Logo.png.png'; // تأكد أن ملف Logo.png.png موجود في نفس مجلد ملف HTML
+
+            await new Promise((resolve) => {
+                logoImg.onload = resolve;
+                logoImg.onerror = () => {
+                    console.warn('فشل في تحميل Logo.png.png. سيتم إنشاء PDF بدون شعار.');
+                    resolve(); // استمر في إنشاء PDF حتى لو فشل تحميل الشعار
+                };
+            });
+
+            const logoWidth = 50; // عرض الشعار في PDF (مم)
+            let logoHeight = 0;
+            let logoX = 0;
+            let logoY = 10; // هامش علوي للشعار
+
+            if (logoImg.complete && logoImg.naturalHeight !== 0) {
+                logoHeight = (logoImg.naturalHeight * logoWidth) / logoImg.naturalWidth; // الحفاظ على نسبة العرض إلى الارتفاع
+                logoX = (doc.internal.pageSize.width - logoWidth) / 2; // توسيط الشعار أفقياً
+                doc.addImage(logoImg, 'PNG', logoX, logoY, logoWidth, logoHeight);
+            } else {
+                console.warn('صورة الشعار غير محملة أو غير صالحة، سيتم تخطي إضافتها إلى PDF.');
+            }
+
+            const contentOffsetTop = logoY + logoHeight + (logoHeight > 0 ? 15 : 10); // بدء المحتوى 15 مم أسفل الشعار إذا كان موجوداً، وإلا 10 مم
+            // --- نهاية إضافة الشعار ---
+
+            // إضافة خط Amiri
+            try {
+                doc.setFont('Amiri', 'normal');
+                doc.setFontSize(20);
+            } catch (e) {
+                console.error('خطأ في تحميل خط Amiri:', e);
+                alert('تعذر تحميل خط Amiri. تأكد من وجود ملف amiri.js وأنه صحيح.');
+                return;
+            }
+
+            // إنشاء حاوية مؤقتة لالتقاط المحتوى المرئي فقط
+            const tempContainer = document.createElement('div');
+            tempContainer.style.padding = '24px';  // هامش أكبر
+            tempContainer.style.backgroundColor = 'white';
+            tempContainer.style.fontFamily = 'Amiri, sans-serif';
+            tempContainer.style.direction = 'rtl';
+            tempContainer.style.fontSize = '42px';  // خط كبير جدًا
+            tempContainer.style.fontWeight = 'bold' ;            
+            tempContainer.style.lineHeight = '1.6'; // تباعد أسطر
+
+           
+            // العنوان بخط أكبر
+            const title = document.createElement('h2');
+            title.textContent = 'قائمة المنتجات المختارة';
+            title.style.textAlign = 'center';
+            title.style.color = '#000';
+            title.style.fontWeight = 'bold' ;
+            title.style.fontSize = '40px';  // عنوان كبير
+            title.style.marginBottom = '28px';
+            tempContainer.appendChild(title);
+
+            // إضافة الفئات والمنتجات المختارة فقط
+            const categories = ['drinks', 'foods', 'desserts'];
+            categories.forEach(categoryId => {
+                const section = document.getElementById(categoryId);
+                const products = section.querySelectorAll('.product');
+                let hasSelected = false;
+                const categoryDiv = document.createElement('div');
+                categoryDiv.style.margin = '25px 0';
+
+                products.forEach(prod => {
+                    const qty = parseInt(prod.querySelector('.qty').textContent);
+                    if (qty > 0) {
+                        if (!hasSelected) {
+                            const categoryTitle = document.createElement('div');
+                            categoryTitle.textContent = section.previousElementSibling.textContent;
+                            categoryTitle.style.backgroundColor = '#007bff';
+                            categoryTitle.style.color = 'white';
+                            categoryTitle.style.padding = '10px';
+                            categoryTitle.style.borderRadius = '5px';
+                            categoryTitle.style.margin = '5px 0';
+                            categoryDiv.appendChild(categoryTitle);
+                            hasSelected = true;
+                        }
+                        const productDiv = document.createElement('div');
+                        productDiv.style.display = 'flex';
+                        productDiv.style.justifyContent = 'space-between';
+                        productDiv.style.padding = '8px';
+                        productDiv.style.borderBottom = '1px solid #ccc';
+                        productDiv.innerHTML = `<span>${prod.dataset.name}</span><span>الكمية: ${qty}</span>`;
+                        categoryDiv.appendChild(productDiv);
+                    }
+                });
+                if (hasSelected) tempContainer.appendChild(categoryDiv);
+            });
+
+            // إذا لم يتم تحديد أي منتجات، إضافة رسالة
+            if (!tempContainer.querySelector('div')) {
+                const noItems = document.createElement('p');
+                noItems.textContent = 'لا توجد منتجات مختارة.';
+                tempContainer.appendChild(noItems);
+            }
+
+            document.body.appendChild(tempContainer);
+
+            // التقاط المحتوى باستخدام html2canvas
+            const canvas = await html2canvas(tempContainer, {
+                scale: 2,  // دقة عالية
+                useCORS: true,  // دعم الصور الخارجية
+                logging: false  // تعطيل السجلات
+            });
+
+            // إزالة الحاوية المؤقتة
+            document.body.removeChild(tempContainer);
+
+            // تحويل الـ canvas إلى صورة وإضافتها إلى PDF
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 190;  // عرض الصورة في الـ PDF (بالـ mm)
+            const imgHeightInPdf = (canvas.height * imgWidth) / canvas.width; // ارتفاع الصورة في PDF (مم)
+
+            let currentPdfY = contentOffsetTop; // الموضع Y الحالي على صفحة PDF
+            let currentCanvasYOffset = 0; // الإزاحة Y الحالية (بالبكسل) داخل صورة الكانفاس الأصلية
+
+            const pageHeight = doc.internal.pageSize.height;
+            const pageMargin = 10; // هامش علوي/سفلي للمحتوى
+
+            // الصفحة الأولى
+            let availableHeightOnPage = pageHeight - currentPdfY - pageMargin;
+
+            if (imgHeightInPdf <= availableHeightOnPage) {
+                // الصورة تتسع في الصفحة الأولى
+                doc.addImage(imgData, 'PNG', 10, currentPdfY, imgWidth, imgHeightInPdf);
+            } else {
+                // الصورة أطول من المساحة المتاحة في الصفحة الأولى
+                let heightToDrawInPdf = availableHeightOnPage;
+                let heightToDrawInCanvasPixels = (canvas.height * heightToDrawInPdf) / imgHeightInPdf;
+
+                doc.addImage(imgData, 'PNG', 10, currentPdfY, imgWidth, heightToDrawInPdf, null, null, null, 0, currentCanvasYOffset);
+                currentCanvasYOffset += heightToDrawInCanvasPixels; // تقدم إزاحة الكانفاس Y
+                
+                // الصفحات اللاحقة
+                while (currentCanvasYOffset < canvas.height) {
+                    doc.addPage();
+                    currentPdfY = pageMargin; // ابدأ من الهامش العلوي في الصفحة الجديدة
+                    availableHeightOnPage = pageHeight - currentPdfY - pageMargin; // المساحة المتاحة في الصفحة الجديدة
+                    
+                    heightToDrawInPdf = Math.min(imgHeightInPdf - (currentCanvasYOffset * imgHeightInPdf / canvas.height), availableHeightOnPage);
+                    heightToDrawInCanvasPixels = (canvas.height * heightToDrawInPdf) / imgHeightInPdf;
+
+                    doc.addImage(imgData, 'PNG', 10, currentPdfY, imgWidth, heightToDrawInPdf, null, null, null, 0, currentCanvasYOffset);
+                    currentCanvasYOffset += heightToDrawInCanvasPixels; // تقدم إزاحة الكانفاس Y
+                }
+            }
+            
+            // حفظ الـ PDF
+            doc.save('طلب_المنتجات.pdf');
+        }
+
+        // طباعة الصفحة
+        function printPage() {
+            window.print();
+        }
+
+        // إرسال إلى واتساب
+        function sendToWhatsApp() {
+            let message = "المنتجات المختارة:\n";
+            document.querySelectorAll('.product').forEach(prod => {
+                const name = prod.dataset.name;
+                const qty = prod.querySelector('.qty').textContent;
+                if (parseInt(qty) > 0) {
+                    message += `${name}: ${qty}\n`;
+                }
+            });
+            if (message === "المنتجات المختارة:\n") {
+                alert('يرجى اختيار منتج واحد على الأقل قبل الإرسال إلى واتساب!');
+                return;
+            }
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
+            window.open(whatsappURL, '_blank');
+        }
+    </script>
+</body>
+</html>
