@@ -7,40 +7,44 @@
     
     <style>
         body {
-            font-family: 'Amiri', serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
         }
         #container {
-            max-width: 500px;
+            max-width: 550px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
         .category {
             background-color: #007bff;
             color: white;
-            padding: 12px;
+            padding: 14px;
             margin: 10px 0;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
             font-weight: bold;
+            transition: background 0.3s;
         }
+        .category:hover { background-color: #0056b3; }
+
         .subcategory {
             display: none;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
             padding: 10px;
-            background: #fdfdfd;
-            border: 1px solid #eee;
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
         }
         .subcategory.active { display: flex; }
         
@@ -48,47 +52,60 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 12px;
+            border-bottom: 1px solid #f1f1f1;
         }
-        .controls { display: flex; align-items: center; gap: 10px; }
-        .qty { font-weight: bold; width: 30px; text-align: center; }
+        .product:last-child { border-bottom: none; }
+        
+        .controls { display: flex; align-items: center; gap: 12px; }
+        .qty { font-weight: bold; width: 30px; text-align: center; font-size: 1.1em; }
         
         button {
-            padding: 5px 12px;
+            padding: 6px 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
         }
+        button:active { opacity: 0.7; }
         .btn-plus { background-color: #28a745; color: white; }
         .btn-minus { background-color: #dc3545; color: white; }
         
-        .actions { text-align: center; margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .actions button { padding: 10px 20px; background-color: #007bff; color: white; font-size: 14px; }
+        .actions { 
+            text-align: center; 
+            margin-top: 30px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 15px; 
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .actions button { padding: 12px 25px; background-color: #007bff; color: white; font-size: 15px; }
+        .btn-reset { background-color: #6c757d !important; }
         
-        /* إخفاء الأزرار عند الطباعة العادية */
-        @media print { .actions, .controls button { display: none; } }
+        @media print { .actions, .controls button { display: none !important; } }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="Amiri.js.js"></script>
 </head>
 <body>
 
 <div id="container">
-    <h2>قائمة المنتجات</h2>
+    <h2>قائمة المنتجات - النخلة</h2>
 
-    <div class="category" onclick="toggleCategory('drinks')">🥤 المشروبات</div>
-    <div id="drinks" class="subcategory">
-        <div class="product" data-name="عصير برتقال">
-            <span>عصير برتقال</span>
+    <div class="category" onclick="toggleCategory('drinks')">🥤 قسم المشروبات</div>
+    <div id="drinks" class="subcategory active"> <div class="product" data-name="مياه غازية">
+            <span>مياه غازية</span>
             <div class="controls">
                 <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
                 <span class="qty">0</span>
                 <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
             </div>
         </div>
+
         <div class="product" data-name="ماء معدني">
             <span>ماء معدني</span>
             <div class="controls">
@@ -97,9 +114,117 @@
                 <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
             </div>
         </div>
+
+        <div class="product" data-name="كولا">
+            <span>كولا</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="كولا زيرو">
+            <span>كولا زيرو</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="كولا دايت">
+            <span>كولا دايت</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="سڤن اب">
+            <span>سڤن اب</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="ميراندا فراوله">
+            <span>ميراندا فراولة</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="ميراندا برتقال">
+            <span>ميراندا برتقال</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="ديو">
+            <span>ديو</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="شاني">
+            <span>شاني</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="ايران برو">
+            <span>ايران برو</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="سبرايت صغير">
+            <span>سبرايت صغير</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="سبرايت كبير">
+            <span>سبرايت كبير</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="product" data-name="عصير اطفال">
+            <span>عصير اطفال</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
     </div>
 
-    <div class="category" onclick="toggleCategory('foods')">🍽 المأكولات</div>
+    <div class="category" onclick="toggleCategory('foods')">🍽 قسم المأكولات</div>
     <div id="foods" class="subcategory">
         <div class="product" data-name="ساندويتش دجاج">
             <span>ساندويتش دجاج</span>
@@ -112,9 +237,9 @@
     </div>
 
     <div class="actions">
-        <button onclick="resetAll()" style="background-color: #6c757d;">تهيئة</button>
+        <button onclick="resetAll()" class="btn-reset">تهيئة القائمة</button>
         <button onclick="generatePDF()">تصدير PDF</button>
-        <button onclick="window.print()">طباعة</button>
+        <button onclick="window.print()">طباعة سريعة</button>
     </div>
 </div>
 
@@ -131,7 +256,9 @@
     }
 
     function resetAll() {
-        document.querySelectorAll('.qty').forEach(s => s.textContent = '0');
+        if(confirm('هل تريد مسح جميع الكميات؟')) {
+            document.querySelectorAll('.qty').forEach(s => s.textContent = '0');
+        }
     }
 
     async function generatePDF() {
@@ -139,44 +266,29 @@
         document.querySelectorAll('.qty').forEach(s => { if(parseInt(s.textContent) > 0) hasItems = true; });
         
         if (!hasItems) {
-            alert('يرجى اختيار منتج!');
+            alert('يرجى اختيار منتج واحد على الأقل قبل التصدير!');
             return;
         }
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
 
-        // --- 1. معالجة الشعار ---
-        const logoImg = new Image();
-        logoImg.src = 'Logo.png.png';
-        await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
-
-        let currentY = 15;
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            const w = 35;
-            const h = (logoImg.naturalHeight * w) / logoImg.naturalWidth;
-            doc.addImage(logoImg, 'PNG', (210 - w) / 2, currentY, w, h);
-            currentY += h + 10;
-        }
-
-        // --- 2. بناء محتوى PDF في حاوية مخفية ---
+        // بناء حاوية المعاينة للـ PDF
         const temp = document.createElement('div');
         temp.style.width = '650px';
-        temp.style.padding = '20px';
+        temp.style.padding = '30px';
         temp.style.direction = 'rtl';
-        temp.style.fontFamily = 'Amiri, serif';
+        temp.style.fontFamily = 'Arial, sans-serif';
         temp.style.backgroundColor = 'white';
 
-        // العنوان والتاريخ
         const now = new Date();
-        const dateStr = now.toLocaleDateString('En-GB') + ' | ' + now.toLocaleTimeString('En-GB', {hour:'2-digit', minute:'2-digit'});
+        const dateStr = now.toLocaleDateString('ar-EG') + ' | ' + now.toLocaleTimeString('ar-EG');
         
         temp.innerHTML = `
-            <h1 style="text-align:center; font-size:28px; margin-bottom:5px;">قائمة الطلبات المختارة</h1>
-            <p style="text-align:center; font-size:16px; color:#666; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:20px;">${dateStr}</p>
+            <h1 style="text-align:center; color:#333; margin-bottom:5px;">طلب منتجات - النخلة</h1>
+            <p style="text-align:center; font-size:16px; color:#666; border-bottom:3px solid #007bff; padding-bottom:10px; margin-bottom:30px;">تاريخ الطلب: ${dateStr}</p>
         `;
 
-        // إضافة المنتجات
         document.querySelectorAll('.subcategory').forEach(sub => {
             const products = sub.querySelectorAll('.product');
             let catContent = "";
@@ -184,9 +296,9 @@
                 const q = p.querySelector('.qty').textContent;
                 if(parseInt(q) > 0) {
                     catContent += `
-                        <div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #eee; font-size:20px;">
+                        <div style="display:flex; justify-content:space-between; padding:12px 10px; border-bottom:1px solid #eee; font-size:20px;">
                             <span>${p.getAttribute('data-name')}</span>
-                            <span style="font-weight:bold;">الكمية: ${q}</span>
+                            <span style="font-weight:bold;">العدد: ${q}</span>
                         </div>`;
                 }
             });
@@ -194,8 +306,8 @@
             if(catContent !== "") {
                 const catName = sub.previousElementSibling.textContent;
                 temp.innerHTML += `
-                    <div style="margin-top:20px;">
-                        <div style="background:#007bff; color:white; padding:8px 15px; border-radius:5px; font-weight:bold; font-size:20px;">${catName}</div>
+                    <div style="margin-top:25px;">
+                        <div style="background:#f0f7ff; color:#007bff; padding:10px 15px; border-right:5px solid #007bff; font-weight:bold; font-size:22px;">${catName}</div>
                         ${catContent}
                     </div>`;
             }
@@ -205,13 +317,12 @@
         const canvas = await html2canvas(temp, { scale: 2 });
         document.body.removeChild(temp);
 
-        // --- 3. إضافة الصورة للـ PDF ---
         const imgData = canvas.toDataURL('image/png');
         const imgW = 190;
         const imgH = (canvas.height * imgW) / canvas.width;
 
-        doc.addImage(imgData, 'PNG', 10, currentY, imgW, imgH);
-        doc.save(`طلب_${now.toLocaleDateString('ar-EG')}.pdf`);
+        doc.addImage(imgData, 'PNG', 10, 15, imgW, imgH);
+        doc.save(`طلب_النخلة_${now.toLocaleDateString('ar-EG')}.pdf`);
     }
 </script>
 
