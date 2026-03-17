@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام طلب المنتجات - النخلة</title>
+    
+    <style>
+        body {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        
+        .category {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .subcategory {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .subcategory.active { display: flex; }
+        
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .controls { display: flex; align-items: center; gap: 10px; }
+        .qty { font-weight: bold; width: 30px; text-align: center; }
+        
+        button {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-plus { background-color: #28a745; color: white; }
+        .btn-minus { background-color: #dc3545; color: white; }
+        
+        .actions { text-align: center; margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .actions button { padding: 10px 20px; background-color: #007bff; color: white; font-size: 14px; }
+        
+        /* إخفاء الأزرار عند الطباعة العادية */
+        @media print { .actions, .controls button { display: none; } }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="Amiri.js.js"></script>
+</head>
+<body>
+
+<div id="container">
+    <h2>قائمة المنتجات</h2>
+
+    <div class="category" onclick="toggleCategory('drinks')">🥤 المشروبات</div>
+    <div id="drinks" class="subcategory">
+        <div class="product" data-name="عصير برتقال">
+            <span>عصير برتقال</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+        <div class="product" data-name="ماء معدني">
+            <span>ماء معدني</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('foods')">🍽 المأكولات</div>
+    <div id="foods" class="subcategory">
+        <div class="product" data-name="ساندويتش دجاج">
+            <span>ساندويتش دجاج</span>
+            <div class="controls">
+                <button class="btn-minus" onclick="changeQty(this, -1)">-</button>
+                <span class="qty">0</span>
+                <button class="btn-plus" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="resetAll()" style="background-color: #6c757d;">تهيئة</button>
+        <button onclick="generatePDF()">تصدير PDF</button>
+        <button onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<script>
+    function toggleCategory(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('active');
+    }
+
+    function changeQty(btn, delta) {
+        const span = btn.parentElement.querySelector('.qty');
+        let val = parseInt(span.textContent) + delta;
+        span.textContent = val < 0 ? 0 : val;
+    }
+
+    function resetAll() {
+        document.querySelectorAll('.qty').forEach(s => s.textContent = '0');
+    }
+
+    async function generatePDF() {
+        let hasItems = false;
+        document.querySelectorAll('.qty').forEach(s => { if(parseInt(s.textContent) > 0) hasItems = true; });
+        
+        if (!hasItems) {
+            alert('يرجى اختيار منتج!');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // --- 1. معالجة الشعار ---
+        const logoImg = new Image();
+        logoImg.src = 'Logo.png.png';
+        await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
+
+        let currentY = 15;
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            const w = 35;
+            const h = (logoImg.naturalHeight * w) / logoImg.naturalWidth;
+            doc.addImage(logoImg, 'PNG', (210 - w) / 2, currentY, w, h);
+            currentY += h + 10;
+        }
+
+        // --- 2. بناء محتوى PDF في حاوية مخفية ---
+        const temp = document.createElement('div');
+        temp.style.width = '650px';
+        temp.style.padding = '20px';
+        temp.style.direction = 'rtl';
+        temp.style.fontFamily = 'Amiri, serif';
+        temp.style.backgroundColor = 'white';
+
+        // العنوان والتاريخ
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ar-EG') + ' | ' + now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+        
+        temp.innerHTML = `
+            <h1 style="text-align:center; font-size:28px; margin-bottom:5px;">قائمة الطلبات المختارة</h1>
+            <p style="text-align:center; font-size:16px; color:#666; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:20px;">${dateStr}</p>
+        `;
+
+        // إضافة المنتجات
+        document.querySelectorAll('.subcategory').forEach(sub => {
+            const products = sub.querySelectorAll('.product');
+            let catContent = "";
+            products.forEach(p => {
+                const q = p.querySelector('.qty').textContent;
+                if(parseInt(q) > 0) {
+                    catContent += `
+                        <div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #eee; font-size:20px;">
+                            <span>${p.getAttribute('data-name')}</span>
+                            <span style="font-weight:bold;">الكمية: ${q}</span>
+                        </div>`;
+                }
+            });
+
+            if(catContent !== "") {
+                const catName = sub.previousElementSibling.textContent;
+                temp.innerHTML += `
+                    <div style="margin-top:20px;">
+                        <div style="background:#007bff; color:white; padding:8px 15px; border-radius:5px; font-weight:bold; font-size:20px;">${catName}</div>
+                        ${catContent}
+                    </div>`;
+            }
+        });
+
+        document.body.appendChild(temp);
+        const canvas = await html2canvas(temp, { scale: 2 });
+        document.body.removeChild(temp);
+
+        // --- 3. إضافة الصورة للـ PDF ---
+        const imgData = canvas.toDataURL('image/png');
+        const imgW = 190;
+        const imgH = (canvas.height * imgW) / canvas.width;
+
+        doc.addImage(imgData, 'PNG', 10, currentY, imgW, imgH);
+        doc.save(`طلب_${now.toLocaleDateString('ar-EG')}.pdf`);
+    }
+</script>
+
+</body>
+</html>
